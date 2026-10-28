@@ -55,10 +55,11 @@
     .cell small { font-size: 10px; }
     .head { font-size: 11px; padding: 3px; }
     .corner { font-size: 10px; text-transform: none; letter-spacing: 0; }
-    img.logo { width: 70% !important; height: auto !important; }
+    img.logo { width: auto !important; height: auto !important; max-width: 56px; max-height: 56px; }
+    .head:has(img.logo) { padding: 4px; }
     .side { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; min-width: 0; width: 100%; }
     .sidebtns { flex-direction: row !important; flex-wrap: wrap; justify-content: center; }
-    .sidebtns .btn { padding: 10px 14px; }
+    .sidebtns .btn { padding: 10px 12px; font-size: 15px; }
     .side .btn { padding: 12px 22px; }
     .side .num { font-size: 40px; margin: 0; }
     .side > div { margin-top: 0 !important; }
