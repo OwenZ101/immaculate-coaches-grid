@@ -494,8 +494,7 @@ function endGame() {
   var won = st.filled.every(Boolean);
   for (var idx = 0; idx < 9; idx++) {
     if (st.filled[idx]) continue;
-    var n = answersFor(st.rows[Math.floor(idx / 3)], st.cols[idx % 3]).length;
-    st.revealed[idx] = "Coaches correct (" + n + ")";
+    st.revealed[idx] = "Missed";
   }
   st.sel = null;
   render();
