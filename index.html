@@ -48,15 +48,18 @@
   .tip.open { display: block; }
 
   @media (max-width: 600px) {
-    .wrap { padding: 14px 8px 36px; }
+    .wrap { padding-block: 14px 36px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
     .board { flex-direction: column; gap: 14px; }
-    .grid { grid-template-columns: 58px repeat(3, minmax(0, 1fr)); grid-template-rows: 72px repeat(3, minmax(0, 1fr)); gap: 6px; width: 100%; max-width: 460px; }
+    .grid { grid-template-columns: 56px repeat(3, minmax(0, 1fr)); grid-template-rows: 72px repeat(3, minmax(0, 1fr)); gap: 6px; width: 100%; min-width: 0; }
     .cell { font-size: 12px; padding: 4px; min-height: 84px; }
     .cell small { font-size: 10px; }
     .head { font-size: 11px; padding: 3px; }
     .corner { font-size: 10px; text-transform: none; letter-spacing: 0; }
     img.logo { width: 70% !important; height: auto !important; }
-    .side { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; min-width: 0; }
+    .side { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; min-width: 0; width: 100%; }
+    .sidebtns { flex-direction: row !important; flex-wrap: wrap; justify-content: center; }
+    .sidebtns .btn { padding: 10px 14px; }
+    .side .btn { padding: 12px 22px; }
     .side .num { font-size: 40px; margin: 0; }
     .side > div { margin-top: 0 !important; }
     #gridInfo { width: 100%; text-align: center; max-width: none; }
@@ -73,7 +76,7 @@
       <div class="num" id="lives">9</div>
       <button class="btn" id="giveUp">Give Up</button>
       <div style="margin-top:14px;font-size:14px;color:#cbd5e1">Filled <span id="count">0</span>/9</div>
-      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px;align-items:center">
+      <div class="sidebtns" style="margin-top:14px;display:flex;flex-direction:column;gap:8px;align-items:center">
         <button class="btn" id="dailyBtn" style="background:#374151">Daily grid</button>
         <button class="btn" id="newBtn" style="background:#374151">New grid</button>
         <button class="btn" id="shareBtn" style="background:#374151">Copy link</button>
