@@ -93,7 +93,7 @@
   <div class="rules">
     Share a grid by copying the link. Anyone who opens it gets the same board. Daily grid is the same for everyone each day.
     Click a square, then type a head coach's name. Matches appear as you type; click one (or press Enter) to submit it.
-    Each coach can be used once. You get 9 wrong guesses. "Winning record" paired with a team uses the coach's win % with that team; otherwise it uses career win %.
+    Each coach can be used once. You get 9 guesses, and every guess (right or wrong) uses one. "Winning record" paired with a team uses the coach's win % with that team; otherwise it uses career win %.
   </div>
 </div>
 
@@ -434,11 +434,12 @@ function submitName(name) {
 
   if (cellOK(coach, st.rows[i], st.cols[j])) {
     st.filled[idx] = name; st.used[name] = true;
-    setMsg("Correct: " + name, "ok");
+    st.lives--;
+    setMsg("Correct: " + name + ". Guesses left: " + st.lives, "ok");
     st.sel = null;
     closeSearch(true);
     render();
-    if (st.filled.every(Boolean)) endGame();
+    if (st.filled.every(Boolean) || st.lives <= 0) endGame();
     return;
   }
 
