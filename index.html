@@ -238,6 +238,22 @@ function easyWithRows(item, rows) {
   return true;
 }
 
+// A grid is solvable only if each of the 9 squares can get its own coach (bipartite matching).
+function hasPerfectMatching(lists) {
+  var owner = {};
+  function tryCell(i, seen) {
+    for (var k = 0; k < lists[i].length; k++) {
+      var name = lists[i][k];
+      if (seen[name]) continue;
+      seen[name] = true;
+      if (owner[name] === undefined || tryCell(owner[name], seen)) { owner[name] = i; return true; }
+    }
+    return false;
+  }
+  for (var i = 0; i < lists.length; i++) if (!tryCell(i, {})) return false;
+  return true;
+}
+
 function buildGrid() {
   for (var attempt = 0; attempt < 2000; attempt++) {
     var used = {}, rows = [], cols = [], ok = true;
@@ -267,6 +283,7 @@ function buildGrid() {
     if (!ok) continue;
     var answers = [];
     for (var i = 0; i < 3; i++) for (var j = 0; j < 3; j++) answers.push(answersFor(rows[i], cols[j]));
+    if (!hasPerfectMatching(answers)) continue;
     return { rows: rows, cols: cols, answers: answers };
   }
   return null;
