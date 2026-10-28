@@ -48,12 +48,13 @@
   .tip.open { display: block; }
 
   @media (max-width: 600px) {
-    .wrap { padding-block: 14px 36px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+    .wrap { position: relative; display: flex; flex-direction: column; justify-content: center; min-height: 100vh; min-height: 100svh; padding-block: 36px 150px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); box-sizing: border-box; }
+    .board { position: relative; top: 120px; }
+    .rules { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); bottom: 24px; margin: 0; font-size: 11px; }
     .board { flex-direction: column; gap: 14px; }
     .grid { grid-template-columns: 56px repeat(3, minmax(0, 1fr)); grid-template-rows: 64px repeat(3, auto); gap: 6px; width: 100%; min-width: 0; }
     .cell { font-size: 12px; padding: 4px; aspect-ratio: 1 / 1; min-height: 0; height: auto; }
-    .rules { font-size: 12px; margin-top: 12px; line-height: 1.45; }
-    .tip { font-size: 13px; max-width: 86vw; white-space: normal; padding: 10px 14px; }
+    .tip { font-size: 12px; max-width: 86vw; white-space: normal; padding: 9px 12px; }
     .cell small { font-size: 10px; }
     .head { font-size: 11px; padding: 3px; }
     .corner { font-size: 10px; text-transform: none; letter-spacing: 0; }
