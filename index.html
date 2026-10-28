@@ -48,9 +48,10 @@
   .tip.open { display: block; }
 
   @media (max-width: 600px) {
-    .wrap { position: relative; display: flex; flex-direction: column; justify-content: center; min-height: 100vh; min-height: 100svh; padding-block: 36px 150px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); box-sizing: border-box; }
-    .board { position: relative; top: 120px; }
-    .rules { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); bottom: 24px; margin: 0; font-size: 11px; }
+    .wrap { display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; padding-block: 28px 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); box-sizing: border-box; }
+    .page-title { font-size: 26px; font-weight: 800; text-align: center; color: #f1f5f9; letter-spacing: .01em; margin: 0 0 8px; }
+    .board { margin-block: auto; }
+    .rules { margin-top: 28px; font-size: 11px; }
     .board { flex-direction: column; gap: 14px; }
     .grid { grid-template-columns: 56px repeat(3, minmax(0, 1fr)); grid-template-rows: 64px repeat(3, auto); gap: 6px; width: 100%; min-width: 0; }
     .cell { font-size: 12px; padding: 4px; aspect-ratio: 1 / 1; min-height: 0; height: auto; }
@@ -73,6 +74,7 @@
 </head>
 <body>
 <div class="wrap">
+  <h1 class="page-title">Immaculate Coaches</h1>
   <div class="board">
     <div class="grid" id="grid"></div>
     <div class="side">
@@ -350,7 +352,7 @@ function headHTML(c) {
 }
 
 function render() {
-  var html = '<div class="corner">Immaculate Coaches</div>';
+  var html = '<div class="corner"></div>';
   st.cols.forEach(function (c) { html += headDiv(c); });
   for (var i = 0; i < 3; i++) {
     html += headDiv(st.rows[i]);
