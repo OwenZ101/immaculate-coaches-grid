@@ -36,6 +36,12 @@
   .res-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .res-hint { margin-top: 14px; font-size: 12px; color: #9ca3af; }
   #endBox { display: flex; justify-content: center; margin-top: 12px; }
+  .past { width: min(440px, calc(100vw - 48px)); margin: 0 auto; padding: 28px 0 48px; }
+  .past h2 { font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #cbd5e1; text-align: center; margin: 0 0 8px; }
+  .past-month { margin-top: 14px; }
+  .past-month-name { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #9ca3af; padding-bottom: 4px; border-bottom: 2px solid #374151; margin-bottom: 2px; }
+  .past-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 2px; border-bottom: 1px solid #1f2937; font-size: 14px; color: #e5e7eb; }
+  .past-row a { color: #60a5fa; font-weight: 700; text-decoration: none; padding: 4px 10px; border-radius: 6px; background: #1e3a8a; }
   .ans-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #374151; }
   .ans-head .ttl { font-weight: 700; font-size: 15px; color: #f1f5f9; }
   .ans-head .sub { font-size: 12px; color: #9ca3af; margin-top: 3px; }
@@ -128,6 +134,8 @@
     <div class="results" id="results"></div>
   </div>
 </div>
+
+<section class="past" id="pastGrids"></section>
 
 <div class="overlay" id="resultOverlay">
   <div class="panel res-panel">
@@ -347,17 +355,20 @@ function updateUrl() {
   try {
     var u = new URL(location.href);
     if (currentCode) u.searchParams.set("g", currentCode); else u.searchParams.delete("g");
+    if (!currentCode && currentDay) u.searchParams.set("d", currentDay); else u.searchParams.delete("d");
     history.replaceState(null, "", u.toString());
   } catch (e) { /* some file:// contexts block history changes; the game still works */ }
 }
 function updateInfo() {
   $("gridInfo").textContent = currentCode
     ? "Grid code: " + currentCode
-    : "Daily grid: " + todayPhoenix();
+    : "Daily grid #" + dayNumber(currentDay || todayPhoenix()) + ": " + formatDay(currentDay || todayPhoenix());
 }
-function loadGrid(code) {
+var currentDay = null; // a past daily grid (YYYY-MM-DD); null = today's daily
+function loadGrid(code, day) {
   currentCode = code;
-  rnd = makeRng(code ? "code:" + code : "daily:" + todayPhoenix());
+  currentDay = !code && day && day !== todayPhoenix() ? day : null;
+  rnd = makeRng(code ? "code:" + code : "daily:" + (currentDay || todayPhoenix()));
   newGame();
   updateUrl();
   updateInfo();
@@ -365,7 +376,9 @@ function loadGrid(code) {
 function initFromUrl() {
   var g = new URLSearchParams(location.search).get("g");
   g = g ? g.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 12) : "";
-  loadGrid(g || null);
+  var d = new URLSearchParams(location.search).get("d");
+  var validDay = d && /^\d{4}-\d{2}-\d{2}$/.test(d) && d <= todayPhoenix() && d >= dayString(1);
+  loadGrid(g || null, validDay ? d : null);
 }
 function copyLink() {
   var url = location.href;
@@ -538,13 +551,33 @@ $("answersOverlay").addEventListener("click", function (e) { if (e.target === $(
 
 var PLAY_URL = "https://owenz101.github.io/immaculate-coaches-grid/";
 var DAILY_EPOCH = Date.UTC(2026, 9, 27); // Oct 27, 2026 = daily grid #1 (so Oct 29 = #3)
-function dailyNumber() {
-  var p = todayPhoenix().split("-");
+function dayNumber(day) {
+  var p = day.split("-");
   return Math.round((Date.UTC(+p[0], +p[1] - 1, +p[2]) - DAILY_EPOCH) / 86400000) + 1;
+}
+function dailyNumber() { return dayNumber(todayPhoenix()); }
+function dayString(n) { return new Date(DAILY_EPOCH + (n - 1) * 86400000).toISOString().slice(0, 10); }
+function formatDay(day) {
+  return new Date(day + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+function renderPastGrids() {
+  var today = dailyNumber(), html = "<h2>Daily grids</h2>", month = null;
+  for (var n = today; n >= 1; n--) {
+    var d = dayString(n), m = new Date(d + "T12:00:00Z").toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+    if (m !== month) {
+      if (month !== null) html += "</div>";
+      month = m;
+      html += '<div class="past-month"><div class="past-month-name">' + esc(m) + "</div>";
+    }
+    html += '<div class="past-row"><span><strong>#' + n + "</strong> &middot; " + esc(formatDay(d)) + (n === today ? " (today)" : "") +
+      '</span><a href="' + (n === today ? "./" : "?d=" + d) + '">Play</a></div>';
+  }
+  if (month !== null) html += "</div>";
+  $("pastGrids").innerHTML = html;
 }
 function shareText() {
   var score = st.filled.filter(Boolean).length;
-  var title = "Immaculate Coaches #" + dailyNumber();
+  var title = "Immaculate Coaches #" + (currentDay ? dayNumber(currentDay) : dailyNumber());
   var lines = ["\uD83C\uDFC8 " + title + " " + score + "/9:"];
   if (score === 9) lines.push("IMMACULATE!");
   for (var i = 0; i < 3; i++) {
@@ -553,7 +586,7 @@ function shareText() {
     lines.push(row);
   }
   lines.push("Play at:");
-  lines.push(currentCode ? PLAY_URL + "?g=" + currentCode : PLAY_URL);
+  lines.push(currentCode ? PLAY_URL + "?g=" + currentCode : currentDay ? PLAY_URL + "?d=" + currentDay : PLAY_URL);
   return lines.join("\n");
 }
 function openResults() {
@@ -664,6 +697,7 @@ $("dailyBtn").addEventListener("click", function () { loadGrid(null); });
 $("shareBtn").addEventListener("click", copyLink);
 window.onerror = function (msg) { setMsg("Script error: " + msg, "bad"); };
 
+renderPastGrids();
 initFromUrl();
 </script>
 </body>
