@@ -533,7 +533,7 @@ $("ansClose").addEventListener("click", closeAnswers);
 $("answersOverlay").addEventListener("click", function (e) { if (e.target === $("answersOverlay")) closeAnswers(); });
 
 var PLAY_URL = "https://owenz101.github.io/immaculate-coaches-grid/";
-var DAILY_EPOCH = Date.UTC(2026, 9, 29); // Oct 29, 2026 = daily grid #1
+var DAILY_EPOCH = Date.UTC(2026, 9, 27); // Oct 27, 2026 = daily grid #1 (so Oct 29 = #3)
 function dailyNumber() {
   var p = todayPhoenix().split("-");
   return Math.round((Date.UTC(+p[0], +p[1] - 1, +p[2]) - DAILY_EPOCH) / 86400000) + 1;
