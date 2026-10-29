@@ -20,11 +20,12 @@
   .cell.revealed { background: #450a0a; color: #fca5a5; cursor: pointer; }
   .row.static { cursor: default; }
   #answersOverlay { z-index: 30; }
-  .panel.res-panel { width: min(400px, calc(100vw - 88px)); padding: 22px 18px 18px; text-align: center; }
+  .panel.res-panel { width: min(440px, calc(100vw - 72px)); padding: 22px 18px 18px; text-align: center; }
   .res-score { font-size: 48px; font-weight: 800; color: #f1f5f9; line-height: 1; }
   .res-score small { font-size: 22px; color: #9ca3af; font-weight: 600; }
   .res-imm { margin-top: 8px; font-size: 18px; font-weight: 800; color: #22c55e; letter-spacing: .08em; }
-  .res-grid { display: grid; grid-template-columns: 64px repeat(3, minmax(0, 1fr)); gap: 6px; align-items: center; margin: 16px 0 14px; }
+  .res-grid { display: grid; grid-template-columns: 56px repeat(3, minmax(0, 1fr)); gap: 6px; align-items: center; margin: 16px 0 14px; }
+  .res-grid .head.rh { justify-content: flex-end; padding-right: 4px; }
   .res-grid .head { font-size: 11px; padding: 2px; }
   .res-grid img.logo { width: auto !important; height: auto !important; max-width: 40px; max-height: 40px; }
   .res-tile { font: inherit; font-size: 13px; font-weight: 700; line-height: 1.2; color: #fff; background: #16a34a; border: 0; border-radius: 8px; padding: 6px; aspect-ratio: 1 / 1; min-height: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -559,7 +560,7 @@ function openResults() {
   var html = '<div></div>';
   st.cols.forEach(function (c) { html += '<div class="head">' + headHTML(c) + "</div>"; });
   for (var i = 0; i < 3; i++) {
-    html += '<div class="head">' + headHTML(st.rows[i]) + "</div>";
+    html += '<div class="head rh">' + headHTML(st.rows[i]) + "</div>";
     for (var j = 0; j < 3; j++) {
       var idx = i * 3 + j, name = st.filled[idx];
       html += '<button class="res-tile' + (name ? "" : " missed") + '" data-idx="' + idx + '">' + esc(name || "Missed") + "</button>";
