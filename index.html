@@ -579,8 +579,9 @@ function renderPastGrids() {
 }
 function shareText() {
   var score = st.filled.filter(Boolean).length;
-  var title = "Immaculate Coaches #" + (currentDay ? dayNumber(currentDay) : dailyNumber());
+  var title = currentCode ? "Immaculate Coaches" : "Immaculate Coaches #" + (currentDay ? dayNumber(currentDay) : dailyNumber());
   var lines = ["\uD83C\uDFC8 " + title + " " + score + "/9:"];
+  if (currentCode) lines.push("Code: " + currentCode);
   if (score === 9) lines.push("IMMACULATE!");
   for (var i = 0; i < 3; i++) {
     var row = "";
