@@ -19,6 +19,17 @@
   .cell.filled { background: #14532d; cursor: default; }
   .cell.revealed { background: #450a0a; color: #fca5a5; cursor: pointer; }
   .row.static { cursor: default; }
+  #answersOverlay { z-index: 30; }
+  .res-panel { padding: 24px 20px 20px; text-align: center; }
+  .res-score { font-size: 48px; font-weight: 800; color: #f1f5f9; line-height: 1; }
+  .res-score small { font-size: 22px; color: #9ca3af; font-weight: 600; }
+  .res-imm { margin-top: 8px; font-size: 18px; font-weight: 800; color: #22c55e; letter-spacing: .08em; }
+  .res-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 18px 0 16px; }
+  .res-tile { font: inherit; font-size: 13px; font-weight: 700; line-height: 1.2; color: #fff; background: #16a34a; border: 0; border-radius: 8px; padding: 8px 6px; min-height: 62px; cursor: pointer; }
+  .res-tile.missed { background: #7f1d1d; color: #fecaca; }
+  .res-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .res-hint { margin-top: 14px; font-size: 12px; color: #9ca3af; }
+  #endBox { display: flex; justify-content: center; margin-top: 12px; }
   .ans-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #374151; }
   .ans-head .ttl { font-weight: 700; font-size: 15px; color: #f1f5f9; }
   .ans-head .sub { font-size: 12px; color: #9ca3af; margin-top: 3px; }
@@ -109,6 +120,19 @@
       <input id="search" type="text" placeholder="Search any NFL head coach..." autocomplete="off" spellcheck="false">
     </div>
     <div class="results" id="results"></div>
+  </div>
+</div>
+
+<div class="overlay" id="resultOverlay">
+  <div class="panel res-panel">
+    <div class="res-score" id="resScore"></div>
+    <div class="res-imm" id="resImm">IMMACULATE!</div>
+    <div class="res-grid" id="resGrid"></div>
+    <div class="res-actions">
+      <button class="btn" id="resShare">Share today's grid</button>
+      <button class="btn" id="resClose" style="background:#374151">Close</button>
+    </div>
+    <div class="res-hint">Tap any square to see the correct coaches.</div>
   </div>
 </div>
 
@@ -506,18 +530,70 @@ function closeAnswers() { $("answersOverlay").classList.remove("open"); }
 $("ansClose").addEventListener("click", closeAnswers);
 $("answersOverlay").addEventListener("click", function (e) { if (e.target === $("answersOverlay")) closeAnswers(); });
 
+var PLAY_URL = "https://owenz101.github.io/immaculate-coaches-grid/";
+var DAILY_EPOCH = Date.UTC(2026, 9, 29); // Oct 29, 2026 = daily grid #1
+function dailyNumber() {
+  var p = todayPhoenix().split("-");
+  return Math.round((Date.UTC(+p[0], +p[1] - 1, +p[2]) - DAILY_EPOCH) / 86400000) + 1;
+}
+function shareText() {
+  var score = st.filled.filter(Boolean).length;
+  var title = currentCode ? "Immaculate Coaches (" + currentCode + ")" : "Immaculate Coaches #" + dailyNumber();
+  var lines = ["\uD83C\uDFC8 " + title + " " + score + "/9:"];
+  if (score === 9) lines.push("IMMACULATE!");
+  for (var i = 0; i < 3; i++) {
+    var row = "";
+    for (var j = 0; j < 3; j++) row += st.filled[i * 3 + j] ? "\uD83D\uDFE9" : "\uD83D\uDFE5";
+    lines.push(row);
+  }
+  lines.push("Play at:");
+  lines.push(currentCode ? PLAY_URL + "?g=" + currentCode : PLAY_URL);
+  return lines.join("\n");
+}
+function openResults() {
+  var score = st.filled.filter(Boolean).length;
+  $("resScore").innerHTML = score + "<small>/9</small>";
+  $("resImm").style.display = score === 9 ? "block" : "none";
+  var html = "";
+  for (var idx = 0; idx < 9; idx++) {
+    var name = st.filled[idx];
+    html += '<button class="res-tile' + (name ? "" : " missed") + '" data-idx="' + idx + '">' + esc(name || "Missed") + "</button>";
+  }
+  $("resGrid").innerHTML = html;
+  $("resShare").textContent = currentCode ? "Share this grid" : "Share today's grid";
+  $("resultOverlay").classList.add("open");
+}
+function closeResults() { $("resultOverlay").classList.remove("open"); }
+$("resClose").addEventListener("click", closeResults);
+$("resultOverlay").addEventListener("click", function (e) { if (e.target === $("resultOverlay")) closeResults(); });
+$("resGrid").addEventListener("click", function (e) {
+  var t = e.target.closest ? e.target.closest(".res-tile") : null;
+  if (t) openAnswers(Number(t.getAttribute("data-idx")));
+});
+$("endBox").addEventListener("click", function (e) { if (e.target.id === "viewResults") openResults(); });
+$("resShare").addEventListener("click", function () {
+  var text = shareText();
+  function copyFallback() {
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { setMsg("Result copied to clipboard.", "ok"); }).catch(function () {});
+  }
+  if (navigator.share) {
+    navigator.share({ text: text }).catch(function (err) { if (!err || err.name !== "AbortError") copyFallback(); });
+  } else {
+    copyFallback();
+  }
+});
+
 function endGame() {
   st.over = true;
-  var won = st.filled.every(Boolean);
   for (var idx = 0; idx < 9; idx++) {
     if (st.filled[idx]) continue;
     st.revealed[idx] = "Missed";
   }
   st.sel = null;
   render();
-  $("endBox").innerHTML = '<div class="end">' + (won ? "Grid complete!" : "Out of guesses.") +
-    " You filled " + st.filled.filter(Boolean).length + " of 9.</div>";
+  $("endBox").innerHTML = '<button class="btn" id="viewResults">View results</button>';
   $("giveUp").disabled = true;
+  openResults();
 }
 
 // ---------- events ----------
@@ -549,7 +625,7 @@ $("grid").addEventListener("click", function (e) {
   var cell = e.target.closest ? e.target.closest(".cell") : null;
   if (!cell || !st) return;
   var idx = Number(cell.getAttribute("data-idx"));
-  if (st.over) { if (!st.filled[idx]) openAnswers(idx); return; }
+  if (st.over) { openAnswers(idx); return; }
   if (st.filled[idx] || st.revealed[idx]) return;
   setMsg("");
   openSearch(idx);
