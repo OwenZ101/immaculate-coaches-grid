@@ -538,7 +538,7 @@ function dailyNumber() {
 }
 function shareText() {
   var score = st.filled.filter(Boolean).length;
-  var title = currentCode ? "Immaculate Coaches (" + currentCode + ")" : "Immaculate Coaches #" + dailyNumber();
+  var title = "Immaculate Coaches #" + dailyNumber();
   var lines = ["\uD83C\uDFC8 " + title + " " + score + "/9:"];
   if (score === 9) lines.push("IMMACULATE!");
   for (var i = 0; i < 3; i++) {
